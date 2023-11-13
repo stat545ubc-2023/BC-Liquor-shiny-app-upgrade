@@ -12,10 +12,16 @@ ui <- fluidPage(
                  radioButtons("typeInput", "Product type",
                               choices = c("BEER", "REFRESHMENT", "SPIRITS", "WINE"),
                               selected = "WINE"),
-                 uiOutput("countryOutput")),
+                 uiOutput("countryOutput"),
+
+                 # Function 1: Download Button
+                 # This will let users save the results of their specific filters
+                 # and access them offline
+                 downloadButton("downloadData", "Download")),
     mainPanel(plotOutput("coolplot"),
               br(),br(),
-              tableOutput("results"))
+              tableOutput("results")),
+
   )
   )
 server <- function(input, output) {
@@ -41,7 +47,7 @@ server <- function(input, output) {
 
 
     ggplot(filtered(), aes(Alcohol_Content)) +
-      geom_histogram()
+      geom_histogram(bins = 30)
 })
 
 output$results <- renderTable({
@@ -53,6 +59,21 @@ output$countryOutput <- renderUI({
               sort(unique(bcl$Country)),
               selected = "CANADA")
 })
+
+
+#Server code for function 1
+output$downloadData <- downloadHandler(
+  filename = "BCLiquor_search_results.csv",
+  content = function(file) {
+    write.csv(filtered(), file)
+  }
+)
+
+
+
+
+
+
 
 }
 shinyApp(ui = ui, server = server)
