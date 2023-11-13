@@ -5,7 +5,7 @@ library(dplyr)
 bcl <- read.csv("bcl-data.csv", stringsAsFactors = FALSE)
 
 ui <- fluidPage(
-  titlePanel("BC Liquor Store prices"),
+  titlePanel("BC Liquor Store Prices"),
   sidebarLayout(
     sidebarPanel(sliderInput("priceInput", "Price", min = 0, max = 100,
                              value = c(25, 40), pre = "$"),
@@ -17,10 +17,17 @@ ui <- fluidPage(
                  # Function 1: Download Button
                  # This will let users save the results of their specific filters
                  # and access them offline
+                 strong("Download table"),
                  downloadButton("downloadData", "Download")),
-    mainPanel(plotOutput("coolplot"),
-              br(),br(),
-              tableOutput("results")),
+    mainPanel(
+                # Function 2: Separate main display into tabs
+                # This allows easy toggling between the plot and data table,
+                # without the need for scrolling.
+                tabsetPanel(
+                  tabPanel("Alcohol Percent Plot", plotOutput("coolplot")),
+                  tabPanel("Matched Results", tableOutput("results"))
+                            ),
+    )
 
   )
   )
