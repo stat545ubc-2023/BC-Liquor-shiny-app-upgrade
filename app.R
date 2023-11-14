@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(DT)
 
 bcl <- read.csv("bcl-data.csv", stringsAsFactors = FALSE)
 
@@ -14,18 +15,24 @@ ui <- fluidPage(
                               selected = "WINE"),
                  uiOutput("countryOutput"),
 
-                 # Function 1: Download Button
+
+                 # Feature 1: Download Button.
                  # This will let users save the results of their specific filters
                  # and access them offline
                  strong("Download table"),
                  downloadButton("downloadData", "Download")),
     mainPanel(
-                # Function 2: Separate main display into tabs
+                # Feature 2: Separate main display into tabs.
                 # This allows easy toggling between the plot and data table,
                 # without the need for scrolling.
                 tabsetPanel(
                   tabPanel("Alcohol Percent Plot", plotOutput("coolplot")),
-                  tabPanel("Matched Results", tableOutput("results"))
+
+                  # Feature 3: Interactive table with DT.
+                  # Easily allows users to sort results, search for entries,
+                  # and page through results, creating a much more flexible
+                  # viewing experience
+                  tabPanel("Matched Results", DT::dataTableOutput("results"))
                             ),
     )
 
@@ -57,9 +64,12 @@ server <- function(input, output) {
       geom_histogram(bins = 30)
 })
 
-output$results <- renderTable({
+# Server code for feature 3
+# Add custom column names, to remove the underscote from "Alchol Content"
+output$results <- DT::renderDataTable({
   filtered()
-})
+}, colnames = c("Type", "Subtype", "Country", "Name", "Alcohol Content", "Price", "Sweetness")
+)
 
 output$countryOutput <- renderUI({
   selectInput("countryInput", "Country",
@@ -68,7 +78,7 @@ output$countryOutput <- renderUI({
 })
 
 
-#Server code for function 1
+# Server code for feature 1
 output$downloadData <- downloadHandler(
   filename = "BCLiquor_search_results.csv",
   content = function(file) {
